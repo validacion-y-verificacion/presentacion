@@ -15,7 +15,17 @@ jwt = JWTManager(app)
 def correct_token(token):
     conn = sql.connect('database.db')
     result = conn.execute(f"SELECT * FROM token WHERE token='{token}';").fetchall()
+    conn.close()
     if result:
+        return True
+    else: 
+        return False
+    
+def authentication(email, password):
+    conn = sql.connect('database.db')
+    result = conn.execute(f"SELECT password FROM usuario WHERE email='{email}';").fetchall()
+    conn.close()
+    if result[0][0] == password:
         return True
     else: 
         return False
@@ -27,25 +37,25 @@ Authentification section
 def create_token():
     email = request.json.get('email')
     password = request.json.get('password')
-
-    try:
-        conn = sql.connect('database.db')
-        user = conn.execute(f"SELECT id_usuario, email FROM usuario WHERE email='{email}' AND password='{password}'").fetchall()
-        conn.close()
-    except:
-        return jsonify({'error': 'Error with the database'}), 401
-    if user:
-        token = str(uuid.uuid4())
-
-        conn = sql.connect('database.db')
-        index = conn.execute(f"SELECT COUNT(*) FROM token;").fetchall()[0]
-        conn.execute("INSERT INTO token (session_id, user_id, token) VALUES (?, ?, ?);", (str(index[0]), user[0][0], token))
-        conn.commit()
-        conn.close()
-
-        return jsonify({'token': token, 'email': user[0][1]})
-    else:
+    if authentication(email, password) == False:
         return jsonify({'error': 'Invalid email or password'}), 401
+    else:
+        try:
+            conn = sql.connect('database.db')
+            user = conn.execute(f"SELECT id_usuario, email FROM usuario WHERE email='{email}' AND password='{password}'").fetchall()
+            conn.close()
+        except:
+            return jsonify({'error': 'Error with the database'}), 401
+        if user:
+            token = str(uuid.uuid4())
+            conn = sql.connect('database.db')
+            index = conn.execute(f"SELECT COUNT(*) FROM token;").fetchall()[0]
+            conn.execute("INSERT INTO token (session_id, user_id, token) VALUES (?, ?, ?);", (str(index[0]), user[0][0], token))
+            conn.commit()
+            conn.close()
+            return jsonify({'token': token, 'email': user[0][1]})
+        else:
+            return jsonify({'error': 'Invalid email or password'}), 401
     
 
 @app.route("/logout", methods=["POST"])
@@ -62,20 +72,17 @@ def logout():
         conn.commit()
 
     conn.close()
-
     return jsonify({'message': 'Logged out successfully'})
 
 '''
 Routes to get information about books
 '''
 @app.route("/get-all-books", methods=['GET'])
-#@jwt_required()
 def get_all_books():
     if request.method == 'GET':
         token = request.json.get('token')
         if correct_token(token) == False:
             return {'message': "Not valid token", 'resources':[]}
-        
         try:       
             with sql.connect("database.db") as conn:
                 resources = conn.execute("SELECT * from material;").fetchall()
@@ -87,34 +94,19 @@ def get_all_books():
     return {'message': msg, 'resources':resources}
 
 @app.route("/get-book", methods=['GET'])
-@jwt_required()
 def get_book():
     if request.method == 'GET':
+        id_material = request.json.get('id_material')
         try:       
             with sql.connect("database.db") as conn:
-                resource = conn.execute("SELECT * from material where ...;").fetchall()
-                msg = "Record successfully added"
+                print(id_material)
+                resource = conn.execute(f"SELECT * FROM material WHERE id_material='{ id_material }';").fetchall()
+                msg = "Record found"
         except:
             resource = []
-            msg = "Resource not found"
+            msg = "Error with the database"
     conn.close()
     return {'message': msg, 'resources':resource}
-
-@app.route("/get-chronology-book", methods=['GET'])
-@jwt_required()
-def get_chronology_book():
-    if request.method == 'GET':
-        try:       
-            with sql.connect("books.db") as con:
-                cur = con.cursor()
-                cur.execute("",() )
-                con.commit()
-                msg = "Record successfully added"
-        except:
-            con.rollback()
-            msg = "error in insert operation"
-    con.close()
-    return msg
 
 '''
 Routes to edit states or add new books
