@@ -30,6 +30,14 @@ def authentication(email, password):
     else: 
         return False
 
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST')
+    return response
+
 '''
 Authentification section
 '''
@@ -77,9 +85,9 @@ def logout():
 '''
 Routes to get information about books
 '''
-@app.route("/get-all-books", methods=['GET'])
+@app.route("/get-all-books", methods=['POST'])
 def get_all_books():
-    if request.method == 'GET':
+    if request.method == 'POST':
         token = request.json.get('token')
         if correct_token(token) == False:
             return {'message': "Not valid token", 'resources':[]}
@@ -93,9 +101,9 @@ def get_all_books():
     conn.close()
     return {'message': msg, 'resources':resources}
 
-@app.route("/get-book", methods=['GET'])
+@app.route("/get-book", methods=['POST'])
 def get_book():
-    if request.method == 'GET':
+    if request.method == 'POST':
         id_material = request.json.get('id_material')
         token = request.json.get('token')
         if correct_token(token) == False:
@@ -222,9 +230,9 @@ def return_book():
 '''
 Routes to get chronology
 '''
-@app.route("/chronology-book", methods=['GET'])
+@app.route("/chronology-book", methods=['POST'])
 def get_chronology_book():
-    if request.method == 'GET':
+    if request.method == 'POST':
         token = request.json.get('token')
         if correct_token(token) == False:
             return {'message': "Not valid token", 'resources':[]}
@@ -239,9 +247,9 @@ def get_chronology_book():
     conn.close()
     return {'message': msg, 'resources':resource}
 
-@app.route("/chronology-usuario", methods=['GET'])
+@app.route("/chronology-usuario", methods=['POST'])
 def get_chronology_user():
-    if request.method == 'GET':
+    if request.method == 'POST':
         token = request.json.get('token')
         if correct_token(token) == False:
             return {'message': "Not valid token", 'resources':[]}
