@@ -97,9 +97,11 @@ def get_all_books():
 def get_book():
     if request.method == 'GET':
         id_material = request.json.get('id_material')
+        token = request.json.get('token')
+        if correct_token(token) == False:
+            return {'message': "Not valid token", 'resources':[]}
         try:       
             with sql.connect("database.db") as conn:
-                print(id_material)
                 resource = conn.execute(f"SELECT * FROM material WHERE id_material='{ id_material }';").fetchall()
                 msg = "Record found"
         except:
@@ -109,27 +111,63 @@ def get_book():
     return {'message': msg, 'resources':resource}
 
 '''
-Routes to edit states or add new books
+Routes to add or delete books
 '''
 @app.route("/new-book", methods=['POST'])
-@jwt_required()
 def post_new_book():
     if request.method == 'POST':
+        try:
+            token = request.json.get('token')
+            if correct_token(token) == False:
+                return {'message': "Not valid token", 'resources':[]}
+        except:
+            return {'message': "No token", 'resources':[]}
         try:       
-            with sql.connect("books.db") as con:
-                cur = con.cursor()
-                cur.execute("",() )
-                con.commit()
+            #titulo TEXT, autor TEXT, editorial TEXT, anio YEAR, descripcion TEXT, estado INT
+            titulo = request.json.get('titulo')
+            autor = request.json.get('autor')
+            editorial = request.json.get('editorial')
+            anio = request.json.get('anio')
+            descripcion = request.json.get('descripcion')
+            estado = request.json.get('estado')
+
+            with sql.connect("database.db") as conn:
+                index = len(conn.execute(f"SELECT autor FROM material;").fetchall())
+                conn.execute(f"INSERT INTO material (id_material, titulo, autor, editorial, anio, descripcion, estado) VALUES ('{index}', '{titulo}', '{autor}', '{editorial}', '{anio}', '{descripcion}', '{estado}');")
+                conn.commit()
                 msg = "Record successfully added"
         except:
-            con.rollback()
+            conn.rollback()
             msg = "error in insert operation"
-    con.close()
+    conn.close()
     return msg
 
+@app.route("/delete-book", methods=['POST'])
+def post_delete_book():
+    if request.method == 'POST':
+        try:
+            token = request.json.get('token')
+            if correct_token(token) == False:
+                return {'message': "Not valid token", 'resources':[]}
+        except:
+            return {'message': "No token", 'resources':[]}
+        try:       
+            index = request.json.get('index')
+            with sql.connect("database.db") as conn:
+                index = request.json.get('index')
+                conn.execute(f"DELETE FROM material WHERE id_material='{index}';")
+                conn.commit()
+                msg = "Record successfully deleted"
+        except:
+            conn.rollback()
+            msg = "error in delete operation"
+    conn.close()
+    return msg
 
+'''
+Routes update params of books
+'''
 @app.route("/update-book", methods=['UPDATE'])
-@jwt_required()
 def update_state_book():
     if request.method == 'UPDATE':
         try:
