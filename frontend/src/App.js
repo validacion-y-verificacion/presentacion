@@ -1,30 +1,21 @@
-import logo from './logo.svg';
 import './App.css';
+import { Route } from "wouter";
+import React from "react";
 
-const url = "http://127.0.0.1:5000/get-all-books"
+import useToken from "./components/useToken";
+import Login from "./components/login";
+import Inicio from './components/inicio';
 
 function App() {
-  const token = "1b7a1f5b-0678-44fd-a3b2-0254adb4a959"
-  fetch(url,{
-    method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-    body: JSON.stringify({token: token})
-  }).then(response => {
-    console.log(response.json())
-  })
+  const {token, setToken} = useToken();
+  console.log(token)
+  if (!token) { 
+    return (<Login setToken={setToken} />)
+  }
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-      </header>
-    </div>
-  );
+  return (<div className="App">
+  <Route component={Inicio} path="/" />
+</div>);
 }
 
 export default App;

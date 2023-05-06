@@ -50,7 +50,7 @@ def create_token():
     else:
         try:
             conn = sql.connect('database.db')
-            user = conn.execute(f"SELECT id_usuario, email FROM usuario WHERE email='{email}' AND password='{password}'").fetchall()
+            user = conn.execute(f"SELECT id_usuario, email, tipo FROM usuario WHERE email='{email}' AND password='{password}'").fetchall()
             conn.close()
         except:
             return jsonify({'error': 'Error with the database'}), 401
@@ -61,7 +61,7 @@ def create_token():
             conn.execute("INSERT INTO token (session_id, user_id, token) VALUES (?, ?, ?);", (str(index[0]), user[0][0], token))
             conn.commit()
             conn.close()
-            return jsonify({'token': token, 'email': user[0][1]})
+            return jsonify({'token': token, 'id_usuario':user[0][0], 'email': user[0][1], 'tipo': user[0][2]})
         else:
             return jsonify({'error': 'Invalid email or password'}), 401
     
