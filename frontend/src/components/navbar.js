@@ -34,7 +34,7 @@ export default function NavBar() {
   
             {mostrar ? (
                 <li className="nav-item">
-                    <a className="nav-link" href="/lista_usuarios"> Nuevo material </a>
+                    <a className="nav-link" href="/agregar-material"> Nuevo material </a>
                 </li>) : ("")
             }
 

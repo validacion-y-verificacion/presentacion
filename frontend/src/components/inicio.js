@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { Link} from "wouter";
 
 async function get_books(token){
     return fetch("http://127.0.0.1:5000/get-all-books", {
@@ -19,8 +20,7 @@ export default function Inicio( ) {
         e.preventDefault();
         get_books(token).then(todos => setTodos(todos));
         }
-    
-    console.log(todos)
+      
     return (
       <div class="card text-center">
         <div class="card-header">
@@ -28,8 +28,13 @@ export default function Inicio( ) {
             <h3 style={{ fontWeight: 1000}}>Bienvenido</h3>
           </center>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
             <input type="text" class="form-control" id="books"/> 
+            <select id="filter">
+              <option value="title">Title</option>
+              <option value="author">Author</option>
+              <option value="editorial">Editorial</option>
+            </select> 
             <button type="submit" class="btn btn-primary">
                 Buscar
             </button>
@@ -51,15 +56,19 @@ export default function Inicio( ) {
             </thead>
             <tbody>
               {todos.resources.map((todo) => {
+                  const auxval = `/material-estudio/${todo[0]}`;
                   return (
                     <tr>
                       <td> {todo[1]} </td>
                       <td> {todo[2]} </td>
                       <td> {todo[5]} </td>
                       <td>
-                        <button type="submit" class="btn btn-primary">
-                          Ver detalle
-                        </button> 
+                        <Link to={auxval}>
+                            <button class="btn btn-primary">
+                            {" "}
+                            Ingresar
+                            </button>
+                        </Link>
                       </td>
                     </tr>
                   )
