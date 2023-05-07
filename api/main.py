@@ -14,7 +14,7 @@ jwt = JWTManager(app)
 
 def correct_token(token):
     conn = sql.connect('database.db')
-    result = conn.execute(f"SELECT * FROM token WHERE token='{token}';").fetchall()
+    result = conn.execute(f"SELECT * FROM token WHERE token='{token[1:len(token)-1]}';").fetchall()
     conn.close()
     if result:
         return True
@@ -251,7 +251,6 @@ def get_chronology_book():
 def get_chronology_user():
     if request.method == 'POST':
         token = request.json.get('token')
-        token = token[1:len(token)-1]
         if correct_token(token) == False:
             return {'message': "Not valid token", 'resources':[]}
         try:       

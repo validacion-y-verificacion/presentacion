@@ -15,39 +15,46 @@ export default function Mis_prestamos( ) {
 
     let id_usuario = localStorage.getItem("IdUsuario");
     let token = localStorage.getItem("token");
+    
+    useEffect(() => {
+      get_prestamos(token, id_usuario).then((todos) => setTodos(todos));
+    }, []);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        get_prestamos(token, id_usuario).then(todos => setTodos(todos));
-        }
-
-    console.log(todos)
     return (
       <div class="card text-center">
         <div class="card-header">
           <center>
             <h3 style={{ fontWeight: 1000}}>Mis prestamos</h3>
           </center>
-          <form onSubmit={handleSubmit}>
-            <button type="submit" className="btn btn-primary">
-                Buscar
-            </button>
-          </form>
         </div>
 
         <div>
-            <table class="table">
-                <thead class="thead-dark">
-                    <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">First</th>
-                    <th scope="col">Last</th>
-                    <th scope="col">Handle</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+        {!todos ? (
+          <div>
+            Cargando informacion
+          </div>
+        ):(<table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Fecha consulta</th>
+                <th scope="col">Estado consulta</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {todos.resources.map((todo) => {
+                return (
+                  <tr>
+                    <td> {todo[0]} </td>
+                    <td> {todo[1]} </td>
+                    <td> {todo[2]} </td>
+                    <td> {todo[3]} </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>)}
         </div>
       </div>
     );

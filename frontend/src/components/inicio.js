@@ -35,6 +35,38 @@ export default function Inicio( ) {
             </button>
           </form>
         </div>
+        <div>
+          {!todos ? (
+            <div>
+
+            </div>
+            ):(<table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Titulo</th>
+                <th scope="col">Autor</th>
+                <th scope="col">Descripcion</th>
+                <th scope="col">Ver detalles</th>
+              </tr>
+            </thead>
+            <tbody>
+              {todos.resources.map((todo) => {
+                  return (
+                    <tr>
+                      <td> {todo[1]} </td>
+                      <td> {todo[2]} </td>
+                      <td> {todo[5]} </td>
+                      <td>
+                        <button type="submit" class="btn btn-primary">
+                          Ver detalle
+                        </button> 
+                      </td>
+                    </tr>
+                  )
+                })}
+            </tbody>
+          </table>)}
+        </div>
       </div>
     );
   }
