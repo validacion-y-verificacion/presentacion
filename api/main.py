@@ -167,21 +167,94 @@ def post_delete_book():
 '''
 Routes update params of books
 '''
-@app.route("/update-book", methods=['UPDATE'])
-def update_state_book():
-    if request.method == 'UPDATE':
+@app.route("/reserve-book", methods=['POST'])
+def reserve_book():
+    if request.method == 'POST':
         try:
-            with sql.connect("books.db") as con:
-                cur = con.cursor()
-                cur.execute("",() )
-                con.commit()
-                msg = "Record successfully added"
+            token = request.json.get('token')
+            if correct_token(token) == False:
+                return {'message': "Not valid token"}
         except:
-            con.rollback()
-            msg = "error in insert operation"
-    con.close()
+            return {'message': "No token"}
+        try:
+            with sql.connect("database.db") as conn:
+                #cambiar estado en tabla de materiales
+                id_material = request.json.get('id_material')
+                state = request.json.get('estado')
+                conn.execute(f"UPDATE material SET estado='{state}' WHERE id_material='{id_material}';")
+
+                #agregar reserve en la tabla de prestamos
+                index = len(conn.execute(f"SELECT id FROM prestamos;").fetchall())
+                id_usuario = request.json.get('id_usuario')
+                fecha_prestamo = request.json.get('fecha_prestamo')
+                fecha_retorno = request.json.get('fecha_retorno')
+                conn.execute(f"INSERT INTO prestamos (id, id_usuario, id_material, fecha_prestamo, fecha_retorno) VALUES ('{index}', '{id_usuario}', '{id_material}', '{fecha_prestamo}', '{fecha_retorno}');")
+                conn.commit()
+                msg = "Resource reserved"
+        except:
+            conn.rollback()
+            msg = "error in the reserve operation"
+    conn.close()
     return msg
 
+@app.route("/return-book", methods=['POST'])
+def return_book():
+    if request.method == 'POST':
+        try:
+            token = request.json.get('token')
+            if correct_token(token) == False:
+                return {'message': "Not valid token"}
+        except:
+            return {'message': "No token"}
+        try:
+            with sql.connect("database.db") as conn:
+                id_material = request.json.get('id_material')
+                state = request.json.get('estado')
+                conn.execute(f"UPDATE material SET estado='{state}' WHERE id_material='{id_material}';")
+                conn.commit()
+                msg = "Resource received"
+        except:
+            conn.rollback()
+            msg = "error in the receive operation"
+    conn.close()
+    return msg
+
+'''
+Routes to get chronology
+'''
+@app.route("/chronology-book", methods=['GET'])
+def get_chronology_book():
+    if request.method == 'GET':
+        token = request.json.get('token')
+        if correct_token(token) == False:
+            return {'message': "Not valid token", 'resources':[]}
+        try:       
+            id_material = request.json.get('id_material')
+            with sql.connect("database.db") as conn:
+                resource = conn.execute(f"SELECT * FROM prestamos WHERE id_material='{ id_material }';").fetchall()
+                msg = "Records found"
+        except:
+            resource = []
+            msg = "Error with the database"
+    conn.close()
+    return {'message': msg, 'resources':resource}
+
+@app.route("/chronology-usuario", methods=['GET'])
+def get_chronology_user():
+    if request.method == 'GET':
+        token = request.json.get('token')
+        if correct_token(token) == False:
+            return {'message': "Not valid token", 'resources':[]}
+        try:       
+            id_usuario = request.json.get('id_usuario')
+            with sql.connect("database.db") as conn:
+                resource = conn.execute(f"SELECT * FROM prestamos WHERE id_usuario='{ id_usuario }';").fetchall()
+                msg = "Records found"
+        except:
+            resource = []
+            msg = "Error with the database"
+    conn.close()
+    return {'message': msg, 'resources':resource}
 
 if __name__ == '__main__':
     app.run()
