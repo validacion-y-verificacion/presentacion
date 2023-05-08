@@ -14,7 +14,7 @@ jwt = JWTManager(app)
 
 def correct_token(token):
     conn = sql.connect('database.db')
-    result = conn.execute(f"SELECT * FROM token WHERE token='{token}';").fetchall()
+    result = conn.execute(f"SELECT * FROM token WHERE token='{token[1:len(token)-1]}';").fetchall()
     conn.close()
     if result:
         return True
@@ -30,6 +30,14 @@ def authentication(email, password):
     else: 
         return False
 
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, UPDATE')
+    return response
+
 '''
 Authentification section
 '''
@@ -42,7 +50,7 @@ def create_token():
     else:
         try:
             conn = sql.connect('database.db')
-            user = conn.execute(f"SELECT id_usuario, email FROM usuario WHERE email='{email}' AND password='{password}'").fetchall()
+            user = conn.execute(f"SELECT id_usuario, email, tipo FROM usuario WHERE email='{email}' AND password='{password}'").fetchall()
             conn.close()
         except:
             return jsonify({'error': 'Error with the database'}), 401
@@ -53,7 +61,7 @@ def create_token():
             conn.execute("INSERT INTO token (session_id, user_id, token) VALUES (?, ?, ?);", (str(index[0]), user[0][0], token))
             conn.commit()
             conn.close()
-            return jsonify({'token': token, 'email': user[0][1]})
+            return jsonify({'token': token, 'id_usuario':user[0][0], 'email': user[0][1], 'tipo': user[0][2]})
         else:
             return jsonify({'error': 'Invalid email or password'}), 401
     
@@ -77,15 +85,25 @@ def logout():
 '''
 Routes to get information about books
 '''
-@app.route("/get-all-books", methods=['GET'])
+@app.route("/get-all-books", methods=['POST'])
 def get_all_books():
-    if request.method == 'GET':
+    if request.method == 'POST':
         token = request.json.get('token')
+        filter = request.json.get('filter')
+        value = request.json.get('value')
+        print(value, filter)
         if correct_token(token) == False:
             return {'message': "Not valid token", 'resources':[]}
         try:       
             with sql.connect("database.db") as conn:
-                resources = conn.execute("SELECT * from material;").fetchall()
+                if filter == "autor":
+                    resources = conn.execute(f"SELECT * from material WHERE autor='{value}';").fetchall()
+                elif filter == "titulo":
+                    resources = conn.execute(f"SELECT * from material WHERE titulo='{value}';").fetchall()
+                elif filter == "editorial":
+                    resources = conn.execute(f"SELECT * from material WHERE editorial='{value}';").fetchall()
+                else:
+                    resources = conn.execute("SELECT * from material;").fetchall()
                 msg = "Resources found"
         except:
             resources = []
@@ -93,9 +111,9 @@ def get_all_books():
     conn.close()
     return {'message': msg, 'resources':resources}
 
-@app.route("/get-book", methods=['GET'])
+@app.route("/get-book", methods=['POST'])
 def get_book():
-    if request.method == 'GET':
+    if request.method == 'POST':
         id_material = request.json.get('id_material')
         token = request.json.get('token')
         if correct_token(token) == False:
@@ -219,12 +237,41 @@ def return_book():
     conn.close()
     return msg
 
+
+@app.route("/update-book", methods=['POST'])
+def update_book():
+    if request.method == 'POST':
+        try:
+            token = request.json.get('token')
+            if correct_token(token) == False:
+                return {'message': "Not valid token"}
+        except:
+            return {'message': "No token"}
+        try:
+            with sql.connect("database.db") as conn:
+                id_material = request.json.get('id_material')
+                state = request.json.get('estado')
+                titulo = request.json.get('titulo')
+                autor = request.json.get('autor')
+                editorial = request.json.get('editorial')
+                anio = request.json.get('anio')
+                state = request.json.get('estado')
+                descripcion = request.json.get('descripcion')
+                conn.execute(f"UPDATE material SET estado='{state}',titulo='{titulo}',autor='{autor}',editorial='{editorial}',anio='{anio}',descripcion='{descripcion}' WHERE id_material='{id_material}';")
+                conn.commit()
+                msg = "Resource updated"
+        except:
+            conn.rollback()
+            msg = "error in the update operation"
+    conn.close()
+    return msg
+
 '''
 Routes to get chronology
 '''
-@app.route("/chronology-book", methods=['GET'])
+@app.route("/chronology-book", methods=['POST'])
 def get_chronology_book():
-    if request.method == 'GET':
+    if request.method == 'POST':
         token = request.json.get('token')
         if correct_token(token) == False:
             return {'message': "Not valid token", 'resources':[]}
@@ -239,9 +286,9 @@ def get_chronology_book():
     conn.close()
     return {'message': msg, 'resources':resource}
 
-@app.route("/chronology-usuario", methods=['GET'])
+@app.route("/chronology-usuario", methods=['POST'])
 def get_chronology_user():
-    if request.method == 'GET':
+    if request.method == 'POST':
         token = request.json.get('token')
         if correct_token(token) == False:
             return {'message': "Not valid token", 'resources':[]}
@@ -254,6 +301,7 @@ def get_chronology_user():
             resource = []
             msg = "Error with the database"
     conn.close()
+    print({'message': msg, 'resources':resource})
     return {'message': msg, 'resources':resource}
 
 if __name__ == '__main__':
