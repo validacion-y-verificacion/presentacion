@@ -35,7 +35,7 @@ def authentication(email, password):
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, UPDATE')
     return response
 
 '''
@@ -89,11 +89,21 @@ Routes to get information about books
 def get_all_books():
     if request.method == 'POST':
         token = request.json.get('token')
+        filter = request.json.get('filter')
+        value = request.json.get('value')
+        print(value, filter)
         if correct_token(token) == False:
             return {'message': "Not valid token", 'resources':[]}
         try:       
             with sql.connect("database.db") as conn:
-                resources = conn.execute("SELECT * from material;").fetchall()
+                if filter == "autor":
+                    resources = conn.execute(f"SELECT * from material WHERE autor='{value}';").fetchall()
+                elif filter == "titulo":
+                    resources = conn.execute(f"SELECT * from material WHERE titulo='{value}';").fetchall()
+                elif filter == "editorial":
+                    resources = conn.execute(f"SELECT * from material WHERE editorial='{value}';").fetchall()
+                else:
+                    resources = conn.execute("SELECT * from material;").fetchall()
                 msg = "Resources found"
         except:
             resources = []
@@ -224,6 +234,35 @@ def return_book():
         except:
             conn.rollback()
             msg = "error in the receive operation"
+    conn.close()
+    return msg
+
+
+@app.route("/update-book", methods=['POST'])
+def update_book():
+    if request.method == 'POST':
+        try:
+            token = request.json.get('token')
+            if correct_token(token) == False:
+                return {'message': "Not valid token"}
+        except:
+            return {'message': "No token"}
+        try:
+            with sql.connect("database.db") as conn:
+                id_material = request.json.get('id_material')
+                state = request.json.get('estado')
+                titulo = request.json.get('titulo')
+                autor = request.json.get('autor')
+                editorial = request.json.get('editorial')
+                anio = request.json.get('anio')
+                state = request.json.get('estado')
+                descripcion = request.json.get('descripcion')
+                conn.execute(f"UPDATE material SET estado='{state}',titulo='{titulo}',autor='{autor}',editorial='{editorial}',anio='{anio}',descripcion='{descripcion}' WHERE id_material='{id_material}';")
+                conn.commit()
+                msg = "Resource updated"
+        except:
+            conn.rollback()
+            msg = "error in the update operation"
     conn.close()
     return msg
 

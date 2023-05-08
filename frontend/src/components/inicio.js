@@ -1,24 +1,32 @@
 import React, { useState } from "react";
 import { Link} from "wouter";
 
-async function get_books(token){
+async function get_books(payload){
     return fetch("http://127.0.0.1:5000/get-all-books", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({"token": token}),
+        body: JSON.stringify( payload ),
     }).then((data)=>data.json())
   };
 
 export default function Inicio( ) {
 
     const [todos, setTodos] = useState();
+    const [filter, setFilter] = useState("")
+    const [value, setValue] = useState("")
     let token = localStorage.getItem("token");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        get_books(token).then(todos => setTodos(todos));
+        let payload = {
+          filter: filter,
+          value: value,
+          token: token
+        };
+
+        get_books(payload).then(todos => setTodos(todos));
         }
       
     return (
@@ -29,10 +37,11 @@ export default function Inicio( ) {
           </center>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
-            <input type="text" class="form-control" id="books"/> 
-            <select id="filter">
-              <option value="title">Title</option>
-              <option value="author">Author</option>
+            <input type="text" class="form-control" id="books" onChange={(e) => setValue(e.target.value)}/> 
+            <select id="filter" onChange={(e) => setFilter(e.target.value)}>
+              <option value="todo">Sin filtro</option>
+              <option value="titulo">Titulo</option>
+              <option value="autor">Autor</option>
               <option value="editorial">Editorial</option>
             </select> 
             <button type="submit" class="btn btn-primary">

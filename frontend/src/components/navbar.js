@@ -40,12 +40,6 @@ export default function NavBar() {
 
             {mostrar ? (
                 <li className="nav-item">
-                    <a className="nav-link" href="/lista_usuarios"> Eliminar material </a>
-                </li>) : ("")
-            }
-
-            {mostrar ? (
-                <li className="nav-item">
                     <a className="nav-link" href="/lista_usuarios"> Retorno de material </a>
                 </li>) : ("")
             }

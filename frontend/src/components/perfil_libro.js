@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Redirect } from "wouter";
+import { Redirect, Link } from "wouter";
 
 async function get_perfil_libro(token, id_material){
     return fetch("http://127.0.0.1:5000/get-book", {
@@ -26,6 +26,7 @@ export default function Perfil_libro( { params } ) {
     const id_material  = params.keyword;
     let token = localStorage.getItem("token");
     let mostrar = false
+    const auxval = `/editar-material/${id_material}`;
     
     let tipoUsuario = localStorage.getItem("TipoUsuario");
     if (tipoUsuario.localeCompare("Administrador") === 0) {
@@ -81,6 +82,12 @@ export default function Perfil_libro( { params } ) {
           <form onSubmit={handleSubmit}>
             <button type="submit" className="btn btn-primary">Eliminar</button>
           </form>
+          <Link to={auxval}>
+            <button class="btn btn-primary">
+              {" "}
+              Editar
+            </button>
+          </Link>
         </div>):(
           <div></div>
         )}
