@@ -37,7 +37,7 @@ export default function Inicio( ) {
           </center>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', alignItems: 'center' }}>
-            <input type="text" class="form-control" id="books" onChange={(e) => setValue(e.target.value)}/> 
+            <input type="text" class="form-control" id="books" data-testid="books-input" onChange={(e) => setValue(e.target.value)}/> 
             <select id="filter" onChange={(e) => setFilter(e.target.value)}>
               <option value="todo">Sin filtro</option>
               <option value="titulo">Titulo</option>
