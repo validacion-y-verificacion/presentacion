@@ -8,7 +8,7 @@ import "@testing-library/jest-dom/extend-expect";
 describe("Agregar Material Component", () => {
     test("submits the form and redirects after successful submission", async () => {
         // Set the user type in local storage
-        localStorage.setItem("TipoUsuario", "123");
+        localStorage.setItem("TipoUsuario", "Administrador");
         localStorage.setItem("token", "token");
 
         const mockBooks = {

@@ -22,7 +22,7 @@ export default function Agregar_material() {
   const [descripcion, setDescripcion] = useState("")
   const [estado, setEstado] = useState("")
 
-  if (tipo !== "123") {
+  if (tipo !== "Administrador") {
     return <Redirect to={"/"} />;
   }
 
