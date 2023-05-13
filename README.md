@@ -36,6 +36,6 @@ Credenciales estudiante:
 1. Email: test2@gmail.com
 2. Contraseña: 123
 
-
-
+### Ejecución de test
+Para ejecutar lo test, hay que estar dentro de la carpeta del frontend y luego ejecutar ```npm test```. No es necesario que la aplicacion este levantada para ejecutar los test.
 
