@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Redirect } from "wouter";
+import React, { useState, useEffect } from "react";
+import { Redirect, useLocation, } from "wouter";
 
 async function post_nuevo_material(credential) {
   return fetch("http://127.0.0.1:5000/new-book", {
@@ -14,6 +14,7 @@ async function post_nuevo_material(credential) {
 export default function Agregar_material() {
   let token = localStorage.getItem("token");
   let tipo = localStorage.getItem("TipoUsuario");
+  const [location, setLocation] = useLocation();
 
   const [titulo, setTitulo] = useState("")
   const [autor, setAutor] = useState("")
@@ -26,6 +27,12 @@ export default function Agregar_material() {
     ;
   }
 
+  useEffect(() => {
+    if (location === "/submitted") {
+      setLocation("/");
+    }
+  }, [location, setLocation]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     let payload = {
@@ -37,7 +44,8 @@ export default function Agregar_material() {
       estado: estado,
       token: token
     };
-    await post_nuevo_material(payload); 
+    const response = await post_nuevo_material(payload); 
+
   }
 
   return (

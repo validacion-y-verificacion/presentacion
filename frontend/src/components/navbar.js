@@ -1,6 +1,6 @@
 import React from "react";
 
-async function delete_token(token) {
+function delete_token(token) {
   return fetch("http://127.0.0.1:5000/delete-token", {
     method: "POST",
     headers: {
@@ -61,6 +61,7 @@ export default function NavBar() {
                 <li className="nav-item ">
                     <a className="nav-link" href="/" onClick={() => {
                     const response = delete_token( localStorage.getItem("token") );
+                    //console.log(response)
                     localStorage.clear();
                     window.location.reload();
                     }} >
