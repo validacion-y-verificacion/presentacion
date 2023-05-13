@@ -17,7 +17,7 @@ Como requerimientos generales, se requiere una version de python 3.9.6, una vers
 Dentro de la carpeta API se deben instalar las librerias que se indicar en el archivo "requirements.txt",
 estas se instalar usando ```pip3 install -r requirements.txt```. La base de datos utiliza SQlite.
 
-Luego para levantar la API, dentro de la misma carpeta, usar ```pip3 main.py```.
+Luego para levantar la API, dentro de la misma carpeta, usar ```python3 main.py```.
 
 
 ### Instalacion de frontend
