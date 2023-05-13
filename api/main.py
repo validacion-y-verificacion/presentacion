@@ -1,7 +1,7 @@
 from json import *
 import sqlite3 as sql
 import uuid
-
+import pandas as pd
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta, timezone
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, \
@@ -66,18 +66,19 @@ def create_token():
             return jsonify({'error': 'Invalid email or password'}), 401
     
 
-@app.route("/logout", methods=["POST"])
+@app.route("/delete-token", methods=["POST"])
 def logout():
     token = request.json.get('token')
+    print(token)
     
     conn = sql.connect('database.db')
     conn.execute(f"DELETE FROM token WHERE token='{token}';")
     conn.commit()
 
-    remaining_tokens = conn.execute(f"SELECT token FROM token WHERE user_id=(SELECT user_id FROM token WHERE token='{token}')").fetchall()
-    if len(remaining_tokens) > 0:
-        conn.execute(f"DELETE FROM token WHERE token='{token}'")
-        conn.commit()
+    #remaining_tokens = conn.execute(f"SELECT token FROM token WHERE user_id=(SELECT user_id FROM token WHERE token='{token}')").fetchall()
+    #if len(remaining_tokens) > 0:
+    #    conn.execute(f"DELETE FROM token WHERE token='{token}'")
+    #    conn.commit()
 
     conn.close()
     return jsonify({'message': 'Logged out successfully'})
@@ -91,19 +92,20 @@ def get_all_books():
         token = request.json.get('token')
         filter = request.json.get('filter')
         value = request.json.get('value')
-        print(value, filter)
         if correct_token(token) == False:
             return {'message': "Not valid token", 'resources':[]}
         try:       
             with sql.connect("database.db") as conn:
-                if filter == "autor":
-                    resources = conn.execute(f"SELECT * from material WHERE autor='{value}';").fetchall()
-                elif filter == "titulo":
-                    resources = conn.execute(f"SELECT * from material WHERE titulo='{value}';").fetchall()
-                elif filter == "editorial":
-                    resources = conn.execute(f"SELECT * from material WHERE editorial='{value}';").fetchall()
+                resources = conn.execute(f"SELECT * from material;").fetchall()
+                dataframe = pd.DataFrame(resources, columns=['id', 'titulo', 'autor', 'editorial', 'año', 'descripcion', 'estado'])
+                index = []
+                if filter == "":
+                    resources = resources
                 else:
-                    resources = conn.execute("SELECT * from material;").fetchall()
+                    for i,row in enumerate(dataframe[filter]):
+                        if value.lower() in row.lower().split():
+                            index.append(resources[i])
+                    resources = index
                 msg = "Resources found"
         except:
             resources = []

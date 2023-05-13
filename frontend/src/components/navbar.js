@@ -1,5 +1,15 @@
 import React from "react";
 
+async function delete_token(token) {
+  return fetch("http://127.0.0.1:5000/delete-token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ "token": token}),
+  }).then((data) => data.json())
+};
+
 export default function NavBar() {
 
     let mostrar = false
@@ -50,6 +60,7 @@ export default function NavBar() {
             <ul class="navbar-nav justify-content-end">
                 <li className="nav-item ">
                     <a className="nav-link" href="/" onClick={() => {
+                    const response = delete_token( localStorage.getItem("token") );
                     localStorage.clear();
                     window.location.reload();
                     }} >

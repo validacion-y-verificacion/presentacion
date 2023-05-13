@@ -57,7 +57,7 @@ export default function Perfil_libro({ params }) {
           <thead>
             <tr>
               <th scope="col">Nombre</th>
-              <th scope="col">Fecha consulta</th>
+              <th scope="col">Descripción</th>
               <th scope="col">Estado consulta</th>
               <th scope="col">Acciones</th>
             </tr>
@@ -65,10 +65,45 @@ export default function Perfil_libro({ params }) {
           <tbody>
             {todos.resources.map((libro) => (
               <tr key={libro.id}>
-                <td>{libro.nombre}</td>
-                <td>{libro.fecha_consulta}</td>
-                <td>{libro.estado_consulta}</td>
-                <td>{libro.acciones}</td>
+                <td>
+                  {libro.nombre ? (
+                    <div>
+                      {libro.nombre}
+                    </div>
+                  ):(
+                    <div>
+                      {libro[1]}
+                    </div>)}
+                </td>
+                <td>
+                  {libro.fecha_consulta ? (
+                    <div>
+                      {libro.fecha_consulta}
+                    </div>
+                  ):(
+                    <div>
+                      {libro[5]}
+                    </div>)}
+                </td>
+                <td>
+                  {libro.estado_consulta ? (
+                    <div>
+                      {libro.estado_consulta}
+                    </div>
+                  ):(
+                    <div>
+                      {libro[6]}
+                    </div>)}
+                </td>
+                <td>
+                  {libro.acciones ? (
+                    <div>
+                      {libro.acciones}
+                    </div>
+                  ):(
+                    <div>
+                    </div>)}
+                </td>
               </tr>
             ))}
           </tbody>

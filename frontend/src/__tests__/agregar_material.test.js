@@ -89,6 +89,8 @@ describe("Agregar Material Component", () => {
         fireEvent.click(submitButton);
 
         // Wait for the table to be added to the DOM.
+        //Buscar include en backend
+        //
         await waitFor(() => expect(screen.getByRole("table")).toBeInTheDocument());
 
         // Verify that the books are displayed

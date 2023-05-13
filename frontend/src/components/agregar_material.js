@@ -23,7 +23,7 @@ export default function Agregar_material() {
   const [estado, setEstado] = useState("")
 
   if (tipo !== "Administrador") {
-    return <Redirect to={"/"} />;
+    ;
   }
 
   const handleSubmit = async (e) => {
@@ -37,19 +37,8 @@ export default function Agregar_material() {
       estado: estado,
       token: token
     };
-    const response = await post_nuevo_material(payload);
-    console.log(response)
-    return <Redirect to={"/"} />;
+    await post_nuevo_material(payload); 
   }
-
-  /*
-  titulo = request.json.get('titulo')
-  autor = request.json.get('autor')
-  editorial = request.json.get('editorial')
-  anio = request.json.get('anio')
-  descripcion = request.json.get('descripcion')
-  estado = request.json.get('estado')
-  */
 
   return (
     <div class="card-body">

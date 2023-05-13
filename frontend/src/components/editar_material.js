@@ -53,16 +53,15 @@ export default function Editar_libro({ params }) {
         e.preventDefault();
         let payload = {
             id_material: id_material,
-            titulo: titulo,
-            autor: autor,
-            editorial: editorial,
-            anio: anio,
-            descripcion: descripcion,
-            estado: estado,
+            titulo: e.target[0].value,
+            autor: e.target[1].value,
+            editorial: e.target[2].value,
+            anio: e.target[3].value,
+            descripcion: e.target[4].value,
+            estado: e.target[5].value,
             token: token
         };
         const response = await editar_material(payload);
-        console.log(response)
         return <Redirect to={"/"} />;
     }
 
