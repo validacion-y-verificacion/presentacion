@@ -28,6 +28,7 @@ export default function Editar_libro({ params }) {
     const id_material = params.keyword;
     let token = localStorage.getItem("token");
     let mostrar = false
+    const [modificado, setModificado] = useState(false);
 
     let tipoUsuario = localStorage.getItem("TipoUsuario");
     if (tipoUsuario.localeCompare("Administrador") === 0) {
@@ -62,6 +63,10 @@ export default function Editar_libro({ params }) {
             token: token
         };
         const response = await editar_material(payload);
+        setModificado(true);
+    }
+    
+    if (modificado) {
         return <Redirect to={"/"} />;
     }
 
