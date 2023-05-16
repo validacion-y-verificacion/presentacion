@@ -27,6 +27,7 @@ export default function Perfil_libro({ params }) {
   let token = localStorage.getItem("token");
   let mostrar = false
   const auxval = `/editar-material/${id_material}`;
+  const [eliminado, setEliminado] = useState(false);
 
   let tipoUsuario = localStorage.getItem("TipoUsuario");
   if (tipoUsuario.localeCompare("Administrador") === 0) {
@@ -43,6 +44,10 @@ export default function Perfil_libro({ params }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await delete_material(token, id_material);
+    setEliminado(true);
+  };
+  
+  if (eliminado) {
     return <Redirect to={"/"} />;
   }
 
