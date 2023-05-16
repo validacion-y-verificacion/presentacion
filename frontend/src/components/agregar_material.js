@@ -31,7 +31,7 @@ export default function Agregar_material() {
     if (location === "/submitted") {
       setLocation("/");
     }
-  }, [location, setLocation]);
+  }, [location, setLocation])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,8 +45,9 @@ export default function Agregar_material() {
       token: token
     };
     const response = await post_nuevo_material(payload); 
+    setLocation("/")
 
-  }
+  };
 
   return (
     <div class="card-body">

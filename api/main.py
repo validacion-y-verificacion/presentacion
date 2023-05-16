@@ -160,7 +160,7 @@ def post_new_book():
             conn.rollback()
             msg = "error in insert operation"
     conn.close()
-    return msg
+    return jsonify({'message': msg})
 
 @app.route("/delete-book", methods=['POST'])
 def post_delete_book():
@@ -182,7 +182,7 @@ def post_delete_book():
             conn.rollback()
             msg = "error in delete operation"
     conn.close()
-    return msg
+    return jsonify({'message': msg})
 
 '''
 Routes update params of books
@@ -266,7 +266,7 @@ def update_book():
             conn.rollback()
             msg = "error in the update operation"
     conn.close()
-    return msg
+    return jsonify({'message': msg})
 
 '''
 Routes to get chronology
